@@ -1,6 +1,7 @@
 package ristretto
 
 import (
+	"github.com/twmb/murmur3"
 	"testing"
 	"time"
 
@@ -157,4 +158,10 @@ func TestUnmarshal_ReuseMarshalMultipleTimes(t *testing.T) {
 		require.True(t, ok, "Iteration %d: entry should be present", i)
 		require.Equal(t, "b", v, "Iteration %d: value should match", i)
 	}
+}
+
+func TestDeterministicSum128(t *testing.T) {
+	a, b := murmur3.StringSum128("test")
+	require.Equal(t, uint64(0xac7d28cc74bde19d), a)
+	require.Equal(t, uint64(0x9a128231f9bd4d82), b)
 }

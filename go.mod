@@ -9,6 +9,7 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20240924180020-3414d57e47da
 	github.com/dustin/go-humanize v1.0.1
 	github.com/stretchr/testify v1.10.0
+	github.com/twmb/murmur3 v1.1.8
 	golang.org/x/sys v0.35.0
 )
 
