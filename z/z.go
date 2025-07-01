@@ -7,13 +7,14 @@ package z
 
 import (
 	"context"
+	"reflect"
 	"sync"
 
 	"github.com/twmb/murmur3"
 )
 
 type Key interface {
-	uint64 | string | []byte | byte | int | uint | int32 | uint32 | int64
+	uint64 | ~string | []byte | byte | int | uint | int32 | uint32 | int64
 }
 
 func KeyToHash[K Key](key K) (uint64, uint64) {
@@ -38,6 +39,12 @@ func KeyToHash[K Key](key K) (uint64, uint64) {
 	case int64:
 		return uint64(k), 0
 	default:
+		// fallback: if key’s underlying kind is string or alias thereof
+		rv := reflect.ValueOf(key)
+		if rv.IsValid() && rv.Kind() == reflect.String {
+			// rv.String() will correctly return the value even if key is a ~string alias
+			return murmur3.StringSum128(rv.String())
+		}
 		panic("Key type not supported")
 	}
 }

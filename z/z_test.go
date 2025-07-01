@@ -20,6 +20,8 @@ func verifyHashProduct(t *testing.T, wantKey, wantConflict, key, conflict uint64
 func TestKeyToHash(t *testing.T) {
 	var key uint64
 	var conflict uint64
+	type MyString string
+	type MyOtherString MyString
 
 	key, conflict = KeyToHash(uint64(1))
 	verifyHashProduct(t, 1, 0, key, conflict)
@@ -44,6 +46,15 @@ func TestKeyToHash(t *testing.T) {
 
 	key, conflict = KeyToHash(int64(3))
 	verifyHashProduct(t, 3, 0, key, conflict)
+
+	key, conflict = KeyToHash("test")
+	verifyHashProduct(t, 0xac7d28cc74bde19d, 0x9a128231f9bd4d82, key, conflict)
+
+	key, conflict = KeyToHash(MyString("test"))
+	verifyHashProduct(t, 0xac7d28cc74bde19d, 0x9a128231f9bd4d82, key, conflict)
+
+	key, conflict = KeyToHash(MyOtherString("test"))
+	verifyHashProduct(t, 0xac7d28cc74bde19d, 0x9a128231f9bd4d82, key, conflict)
 }
 
 func TestMulipleSignals(t *testing.T) {
@@ -79,7 +90,7 @@ func TestZeroOut(t *testing.T) {
 			dst[i] = 0xFF
 		}
 	}
-	check := func(buf []byte, b byte) {
+	checkResult := func(buf []byte, b byte) {
 		for i := 0; i < len(buf); i++ {
 			require.Equalf(t, b, buf[i], "idx: %d", i)
 		}
@@ -87,13 +98,13 @@ func TestZeroOut(t *testing.T) {
 	fill()
 
 	ZeroOut(dst, 0, 1)
-	check(dst[:1], 0x00)
-	check(dst[1:], 0xFF)
+	checkResult(dst[:1], 0x00)
+	checkResult(dst[1:], 0xFF)
 
 	ZeroOut(dst, 0, 1024)
-	check(dst[:1024], 0x00)
-	check(dst[1024:], 0xFF)
+	checkResult(dst[:1024], 0x00)
+	checkResult(dst[1024:], 0xFF)
 
 	ZeroOut(dst, 0, len(dst))
-	check(dst, 0x00)
+	checkResult(dst, 0x00)
 }
